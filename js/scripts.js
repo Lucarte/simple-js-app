@@ -4,10 +4,31 @@ let countryList = [
     {name: 'Germany', capital: 'Berlin', population: 83240525, borders: ['AUT', 'BEL', 'CZE', 'DNK', 'FRA', 'LUX', 'NLD', 'POL', 'CHE'], flag: 'https://flagcdn.com/us.svg' }
 ];
 
-for (let i = 0; i < countryList.length; i++){
+
+// This would be the regualr for Loop
+/* for (let i = 0; i < countryList.length; i++){
+    
     if (countryList[i].population > 99999999){
-        document.write(countryList[i].name + ' ' + 'is a very populated country!!');
+        
+        document.write('<p>' + countryList[i].name + ' ' + '(population: ' + countryList[i].population + ') ' + ' - WOW! A very populated country! ');
     } else {
-        document.write(countryList[i].name + ' ' + 'is a regular size country');
+        document.write('<p>' + countryList[i].name + ' ' + '(population: ' + countryList[i].population + ') ');
     }
+} */
+
+// This would be the external forEach function 
+/* countryList.forEach(nombreDeLaFuncion);
+
+function nombreDeLaFuncion(item) {
+    console.log(item);
 }
+ */
+
+// This would be the internal forEach function
+/* countryList.forEach(function(item){
+    console.log(item);
+}) */
+
+// This would be the forEach arrow function
+countryList.forEach( country => document.write('<p>' + country.name + ' ' + '(population: ' + country.population + ') '));
+
