@@ -30,5 +30,8 @@ function nombreDeLaFuncion(item) {
 }) */
 
 // This would be the forEach arrow function
-countryList.forEach( country => document.write('<p>' + country.name + ' ' + '(population: ' + country.population + ') '));
+/* countryList.forEach( country => document.write('<p>' + country.name + ' ' + '(population: ' + country.population + ') ')); */
 
+countryList.forEach( country => {
+    return document.write( `<p> ${country.name} Population: (${country.population}) </p>`)
+});
