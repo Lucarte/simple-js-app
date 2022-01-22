@@ -1,63 +1,116 @@
 // Now write the code within IIFE
-let countryRepository = (function () {
-    let repository = [
-        {name: 'Colombia', capital: 'Bogotá', population: 50882884, borders: ['BRA', 'ECU', 'PAN', 'PER', 'VEN'], flag: 'https://flagcdn.com/co.svg' },
-        {name: 'United States of America', capital: 'Washington, D.C.', population: 329484123, borders: ['CAN', 'MEX'], flag: 'https://flagcdn.com/us.svg' },
-        {name: 'Germany', capital: 'Berlin', population: 83240525, borders: ['AUT', 'BEL', 'CZE', 'DNK', 'FRA', 'LUX', 'NLD', 'POL', 'CHE'], flag: 'https://flagcdn.com/us.svg' }
-    ];
+let artRepository = (function () {
+    let exhibitionsList = [];
+    let apiUrl = 'https://api.artic.edu/api/v1/exhibitions?limit=50';
 
-    function add (country) {
+    function add (exhibitions) {
         if (
-            typeof country === 'object' &&
-            'capital' in country &&
-            'borders' in country &&
-            'population' in country
+            typeof exhibitions === 'object' &&
+           
+            'title' in exhibitions 
         ) {
-            repository.push (country);  
+            exhibitionsList.push (exhibitions);  
         } else {
-        console.log ('this is not a country');    
+        console.log ('this is not a exhibitions');    
         }
     }
-    function getAll () {
-        return repository;
-    }
     
-    function addListItem (country) {
-        let countryList = document.querySelector ('.country-list');
-        let listCountry = document.createElement ('li');
+    function getAll () {
+        return exhibitionsList;
+    }
+
+    function addListItem (exhibitions) {
+        let exhibitionsList = document.querySelector ('.exhibitions-list');
+        let listexhibitions = document.createElement ('li');
         let button = document.createElement ('button');
-        button.innerText = country.name;
+        button.innerText = exhibitions.title;
         button.classList.add ('button-class');
-        listCountry.appendChild (button);
-        countryList.appendChild (listCountry);
-        button.addEventListener ('click', function () {
-            console.log(country);
+        listexhibitions.appendChild (button);
+        exhibitionsList.appendChild (listexhibitions);
+        button.addEventListener ('click', function (event) {
+            showDetails(exhibitions);
+
         })
     }
 
-    function showDetails (country) {
-        console.log (country);
+    function loadList () {
+        /* showLoadingMessage (function () {
+            document.write ('#loading').removeClass ('hide');
+        }); */
+        return fetch (apiUrl).then (function (response) {
+            return response.json ();
+        }).then (function (json) {
+            json.data.forEach (function (item) {
+                let exhibitions = {
+                    title: item.title,
+                    detailsUrl: item.api_link
+                };
+                add (exhibitions);
+                console.log (exhibitions);
+            });
+        }).catch (function (e) {
+            /* hideLoadingMessage (function () {
+                console.log ('#loading').addClass ('hide');
+            }); */
+            console.error(e);
+        })
+    }
+
+    function loadDetails (item) {
+        /* showLoadingMessage (function () {
+            document.write ('#loading').removeClass ('hide');
+        }); */
+        let url = item.detailsUrl;
+        return fetch (url).then (function (response) {
+            return response.json ();
+        }).then (function (details) {
+            item.description = details.data.description;
+            item.startDate = details.data.aic_start_at;
+            item.endDate = details.data.aic_end_at;
+            item.departmentDisplay = details.data.department_display;
+        }).catch (function (e) {
+            /* hideLoadingMessage (function () {
+                console.log ('#loading').addClass ('hide');
+            }); */
+            console.error (e);
+        });
+    }
+
+    function showDetails (item) {
+        artRepository.loadDetails (item).then (function () {
+            console.log (item);
+        });
     }
 
     return {
         add: add,
         getAll: getAll,
         addListItem: addListItem,
-        showDetails: showDetails
-
+        showDetails: showDetails,
+        loadList: loadList,
+        loadDetails: loadDetails,
+        /* showLoadingMessage: showLoadingMessage,
+        hideLoadingMessage: hideLoadingMessage */
     };
 })(); 
 
-console.log(countryRepository.getAll())
+artRepository.loadList ().then (function () {
+    // With this... the data should be loaded!
+    artRepository.getAll ().forEach (function (exhibitions) {
+        artRepository.addListItem (exhibitions);
+    });
+});
+
+/* console.log(artRepository.getAll()) */
 
 // This would be the regualr for Loop
 /* for (let i = 0; i < repository.length; i++){
     
     if (repository[i].population > 99999999){
         
-        document.write('<p>' + repository[i].name + ' ' + '(population: ' + repository[i].population + ') ' + ' - WOW! A very populated country! ');
+        document.write('<p>' + repository[i].title + ' ' + '(population: ' + repository[i].population + ') ' + ' - WOW! A very populated exhibitions! ');
     } else {
-        document.write('<p>' + repository[i].name + ' ' + '(population: ' + repository[i].population + ') ');
+        document.write('<p>' + repository[i].title + ' ' + '(population: ' + repository[i].population + ') ');
     }
 } */
 
@@ -75,14 +128,7 @@ function nombreDeLaFuncion(item) {
 }) */
 
 // This would be the forEach arrow function
-/* repository.forEach( country => document.write('<p>' + country.name + ' ' + '(population: ' + country.population + ') ')); */
+/* repository.forEach( exhibitions => document.write('<p>' + exhibitions.title + ' ' + '(population: ' + exhibitions.population + ') ')); */
 
 // Using template literals:
-/* repository.forEach( country => document.write(`<p> ${country.name} (population: ${country.population}`) )); */
-
-
-countryRepository.getAll().forEach(function(country) {
-    countryRepository.addListItem(country);
-});
-
-
+/* repository.forEach( exhibitions => document.write(`<p> ${exhibitions.title} (population: ${exhibitions.population}`) )); */
