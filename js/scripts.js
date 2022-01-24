@@ -1,36 +1,39 @@
 // Now write the code within IIFE
 let artRepository = (function () {
-    let exhibitionsList = [];
+    let modalContainer = document.querySelector('#modal-container');
+    let exhibitionList = [];
     let apiUrl = 'https://api.artic.edu/api/v1/exhibitions?limit=50';
 
-    function add (exhibitions) {
+    function add (exhibition) {
         if (
-            typeof exhibitions === 'object' &&
-           
-            'title' in exhibitions 
+            typeof exhibition === 'object' &&
+            'title' in exhibition && 
+            'Description' in exhibition &&
+            'startDate' in exhibition &&
+            'endDate' in exhibition &&
+            'departmentDisplay' in exhibition
         ) {
-            exhibitionsList.push (exhibitions);  
+            exhibitionList.push (exhibition);  
         } else {
-        console.log ('this is not a exhibitions');    
+        console.log ('this does not belong to exhibition');    
         }
     }
     
     function getAll () {
-        return exhibitionsList;
+        return exhibitionList;
     }
 
-    function addListItem (exhibitions) {
-        let exhibitionsList = document.querySelector ('.exhibitions-list');
-        let listexhibitions = document.createElement ('li');
+    function addListItem (exhibition) {
+        let exhibitionList = document.querySelector ('.exhibition-list');
+        let listExhibition = document.createElement ('li');
         let button = document.createElement ('button');
-        button.innerText = exhibitions.title;
+        button.innerText = exhibition.title;
         button.classList.add ('button-class');
-        listexhibitions.appendChild (button);
-        exhibitionsList.appendChild (listexhibitions);
+        listExhibition.appendChild (button);
+        exhibitionList.appendChild (listExhibition);
         button.addEventListener ('click', function (event) {
-            showDetails(exhibitions);
-
-        })
+            showDetails(exhibition);
+        });
     }
 
     function loadList () {
@@ -41,12 +44,16 @@ let artRepository = (function () {
             return response.json ();
         }).then (function (json) {
             json.data.forEach (function (item) {
-                let exhibitions = {
+                let exhibition = {
                     title: item.title,
-                    detailsUrl: item.api_link
+                    detailsUrl: item.api_link,
+                    description: item.description,
+                    startDate: item.startDate,
+                    endDate: item.endDate,
+                    departmentDisplay: item.departmentDisplay
                 };
-                add (exhibitions);
-                console.log (exhibitions);
+                add (exhibition);
+                console.log (exhibition);
             });
         }).catch (function (e) {
             /* hideLoadingMessage (function () {
@@ -56,7 +63,7 @@ let artRepository = (function () {
         })
     }
 
-    function loadDetails (item) {
+    function loadDetails (exhibition) {
         /* showLoadingMessage (function () {
             document.write ('#loading').removeClass ('hide');
         }); */
@@ -76,11 +83,73 @@ let artRepository = (function () {
         });
     }
 
-    function showDetails (item) {
-        artRepository.loadDetails (item).then (function () {
-            console.log (item);
+    function showDetails (exhibition) {
+        loadDetails(exhibition).then (function() {
+            showModal(exhibition);
         });
     }
+
+    function showModal(exhibition) {
+        modalContainer.innerHTML = '';
+        let modal = document.createElement('div');
+        modal.classList.add('modal');
+        
+        let closeButtonElement = document.createElement('button');
+        closeButtonElement.classList.add('modal-close');
+        closeButtonElement.innerText = 'X';
+        closeButtonElement.addEventListener('click', hideModal);
+
+        let titleElement = document.createElement('h1');
+        titleElement.innerText = exhibition.title;
+
+        let descriptionElement = document.createElement('p');
+        descriptionElement.classList.add('exhibition-description');
+        descriptionElement.innerText = exhibition.description;
+
+        let startDateElement = document.createElement('p');
+        startDateElement.classList.add('exhibition-startDate');
+        startDateElement.innerText = exhibition.startDate;
+
+        let endDateElement = document.createElement('p');
+        endDateElement.classList.add('exhibition-endDate');
+        endtDateElement.innerText = exhibition.endDate;
+
+        let departmentDisplayElement = document.createElement('p');
+        departmentDisplayElement.classList.add('exhibition-departmentDisplay');
+        departmentDisplayElement.innerText = exhibition.departmentDisplay;
+
+        modal.appendChild(closeButtonElement);
+        modal.appendChild(titleElement);
+        modal.appendChild(descriptionElement);
+        modal.appendChild(startDateElement);
+        modal.appendChild(endDateElement);
+        modal.appendChild(departmentDisplayElement);
+        modalContainer.appendChild(modal);
+        modalContainer.classList.add('is-visible');    
+    }
+
+    function hideModal() {
+        modalContainer.classList.remove('is-visible');
+    }
+
+    // For the Esc exit    
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalContainer.classList.contains('is-visible')) {
+            hideModal();
+        }
+    });    
+
+    modalContainer.addEventListener ('click', (e) => {
+        let target = e.target;
+        if (target === modalContainer) {
+            hideModal();
+        }
+    });
+
+    /* document.querySelector('#show-modal').addEventListener('click', () => {
+        showModal( 'Modal title', 'This is the modal content!');
+    }); */
+
 
     return {
         add: add,
@@ -89,46 +158,15 @@ let artRepository = (function () {
         showDetails: showDetails,
         loadList: loadList,
         loadDetails: loadDetails,
+        showModal: showModal,
         /* showLoadingMessage: showLoadingMessage,
         hideLoadingMessage: hideLoadingMessage */
     };
 })(); 
 
-artRepository.loadList ().then (function () {
+artRepository.loadList().then (function() {
     // With this... the data should be loaded!
-    artRepository.getAll ().forEach (function (exhibitions) {
-        artRepository.addListItem (exhibitions);
+    artRepository.getAll().forEach (function(exhibition) {
+        artRepository.addListItem(exhibition);
     });
 });
-
-/* console.log(artRepository.getAll()) */
-
-// This would be the regualr for Loop
-/* for (let i = 0; i < repository.length; i++){
-    
-    if (repository[i].population > 99999999){
-        
-        document.write('<p>' + repository[i].title + ' ' + '(population: ' + repository[i].population + ') ' + ' - WOW! A very populated exhibitions! ');
-    } else {
-        document.write('<p>' + repository[i].title + ' ' + '(population: ' + repository[i].population + ') ');
-    }
-} */
-
-// This would be the external forEach function 
-/* repository.forEach(nombreDeLaFuncion);
-
-function nombreDeLaFuncion(item) {
-    console.log(item);
-}
- */
-
-// This would be the internal forEach function
-/* repository.forEach(function(item){
-    console.log(item);
-}) */
-
-// This would be the forEach arrow function
-/* repository.forEach( exhibitions => document.write('<p>' + exhibitions.title + ' ' + '(population: ' + exhibitions.population + ') ')); */
-
-// Using template literals:
-/* repository.forEach( exhibitions => document.write(`<p> ${exhibitions.title} (population: ${exhibitions.population}`) )); */
